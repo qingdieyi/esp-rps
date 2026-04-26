@@ -1,0 +1,4 @@
+-specs=picolibc.specs
+-march=rv32imac_zicsr_zifencei_zaamo_zalrsc
+-mtune=esp-base
+-fno-rtti

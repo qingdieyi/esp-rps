@@ -1,0 +1,16 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "idf.espIdfPathWin": "C:\\Users\\22847\\esp\\v6.0\\esp-idf",
+    "idf.buildPath": "D:\\coding\\C\\esp-32-c5\\esp-rps\\build",
+    "idf.pythonInstallPath": "C:\\Users\\22847\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.openOcdConfigs": [
+        "board/esp32c5-builtin.cfg"
+    ],
+    "idf.portWin": "COM7",
+    "idf.toolsPathWin": "C:\\Users\\22847\\.espressif",
+    "idf.customExtraVars": {
+        "IDF_TARGET": "esp32c5"
+    },
+    "idf.flashType": "UART"
+}

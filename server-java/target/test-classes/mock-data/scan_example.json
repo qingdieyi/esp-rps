@@ -1,0 +1,47 @@
+{
+  "device_id": "rack-tag-001",
+  "device_mac": "A0:B7:65:11:22:33",
+  "timestamp_ms": 1777195900000,
+  "scan_results": [
+    {
+      "bssid": "24:6F:28:00:10:05",
+      "ssid": "FACTORY-BACKHAUL",
+      "rssi": -52,
+      "primary_channel": 149,
+      "secondary_channel": 0,
+      "is_backhaul": true
+    },
+    {
+      "bssid": "24:6F:28:00:10:01",
+      "ssid": "FACTORY-AP-01",
+      "rssi": -58,
+      "primary_channel": 36,
+      "secondary_channel": 0,
+      "is_backhaul": false
+    },
+    {
+      "bssid": "24:6F:28:00:10:02",
+      "ssid": "FACTORY-AP-02",
+      "rssi": -60,
+      "primary_channel": 44,
+      "secondary_channel": 0,
+      "is_backhaul": false
+    },
+    {
+      "bssid": "24:6F:28:00:10:03",
+      "ssid": "FACTORY-AP-03",
+      "rssi": -63,
+      "primary_channel": 149,
+      "secondary_channel": 0,
+      "is_backhaul": false
+    },
+    {
+      "bssid": "24:6F:28:00:10:04",
+      "ssid": "FACTORY-AP-04",
+      "rssi": -61,
+      "primary_channel": 157,
+      "secondary_channel": 0,
+      "is_backhaul": false
+    }
+  ]
+}

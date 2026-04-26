@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: factory-locator-server
+
+locator:
+  ap-registry: classpath:mock-data/ap_registry.json

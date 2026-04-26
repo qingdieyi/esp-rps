@@ -1,0 +1,22 @@
+Designator,Category,Part Number,Description,Qty,Notes
+U1,Module,ESP32-C5-WROOM-1-N4,ESP32-C5 Wi-Fi 6 + BLE module,1,Core MCU and radio
+U2,Power,TLV75533PDBVR,3.3V 500mA low-noise LDO,1,Power ESP32-C5 and sensors
+U3,USB Bridge,CP2102N-A02-GQFN28,USB to UART bridge,1,Development and log output
+U4,Charger,MCP73831T-2ACI-OT,Single-cell Li-ion charger,1,Optional battery SKU
+U5,Protection,TPD2EUSB30DRTR,USB ESD protection,1,Protect D+ and D-
+J1,USB,TYPE-C-31-M-12,USB Type-C receptacle,1,5V input and UART download
+J2,Debug,2.54mm 1x6 Header,UART/BOOT debug header,1,Bring out TX RX EN IO9 GND 3V3
+J3,Power,JST-PH-2,Battery connector,1,Optional battery
+SW1,Switch,TS-1187A-B-A-B,Reset button,1,EN to GND momentary
+SW2,Switch,TS-1187A-B-A-B,Boot button,1,GPIO9 to GND momentary
+ANT1,Antenna,On-module,ESP32-C5 integrated antenna,1,Keep-out area mandatory
+L1,Filter,BLM18AG601SN1D,Ferrite bead 600R@100MHz,1,3V3 analog/radio isolation
+C1,Capacitor,GRM188R60J106ME47D,10uF 6.3V X5R 0603,2,Input and output bulk
+C2,Capacitor,GRM188R71C105KA12D,1uF 16V X7R 0603,4,Decoupling
+C3,Capacitor,GRM1885C1H104JA01D,0.1uF 50V C0G 0603,6,High-frequency decoupling
+C4,Capacitor,GRM155R71A224KA01D,0.22uF 10V X7R 0402,1,EN RC filtering
+R1,Resistor,RC0603FR-0710KL,10k 1% 0603,4,EN pull-up boot strapping
+R2,Resistor,RC0603FR-07499RL,499R 1% 0603,2,USB D+ D- series resistors
+R3,Resistor,RC0402FR-07100KL,100k 1% 0402,2,Battery sense divider
+LED1,Indicator,KT-0603SGC,Green status LED,1,Heartbeat/network state
+R4,Resistor,RC0603FR-071KL,1k 1% 0603,1,LED current limit

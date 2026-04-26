@@ -1,0 +1,42 @@
+[
+  {
+    "bssid": "24:6F:28:00:10:01",
+    "lat": 31.230450,
+    "lon": 121.473660,
+    "floor": 1,
+    "tx_power_dbm_at_1m": -42.0,
+    "path_loss_exponent": 2.15
+  },
+  {
+    "bssid": "24:6F:28:00:10:02",
+    "lat": 31.230450,
+    "lon": 121.473820,
+    "floor": 1,
+    "tx_power_dbm_at_1m": -42.0,
+    "path_loss_exponent": 2.10
+  },
+  {
+    "bssid": "24:6F:28:00:10:03",
+    "lat": 31.230560,
+    "lon": 121.473660,
+    "floor": 1,
+    "tx_power_dbm_at_1m": -42.0,
+    "path_loss_exponent": 2.20
+  },
+  {
+    "bssid": "24:6F:28:00:10:04",
+    "lat": 31.230560,
+    "lon": 121.473820,
+    "floor": 1,
+    "tx_power_dbm_at_1m": -42.0,
+    "path_loss_exponent": 2.05
+  },
+  {
+    "bssid": "24:6F:28:00:10:05",
+    "lat": 31.230505,
+    "lon": 121.473740,
+    "floor": 1,
+    "tx_power_dbm_at_1m": -42.0,
+    "path_loss_exponent": 2.00
+  }
+]

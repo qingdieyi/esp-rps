@@ -1,0 +1,13 @@
+com\factory\locator\dto\LocationResponse.class
+com\factory\locator\FactoryLocatorApplication.class
+com\factory\locator\repository\AccessPointRepository$1.class
+com\factory\locator\dto\PositionResult.class
+com\factory\locator\controller\LocationController.class
+com\factory\locator\dto\ScanResult.class
+com\factory\locator\service\PositioningService$Point.class
+com\factory\locator\repository\AccessPointRepository.class
+com\factory\locator\service\PositioningService.class
+com\factory\locator\dto\ScanPayload.class
+com\factory\locator\dto\AccessPointDistance.class
+com\factory\locator\service\PositioningService$LatLon.class
+com\factory\locator\model\AccessPoint.class
