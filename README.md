@@ -1,6 +1,6 @@
 # ESP32-C5 Factory Rack Positioning System
 
-这个仓库现在已经从 ESP-IDF 的 `hello_world` 模板扩展为一个“工厂料架定位系统”示例工程，目标是：
+这个仓库是一个“工厂料架定位系统”示例工程，目标是：
 
 - 终端基于 `ESP32-C5-WROOM-1`
 - 周期扫描周边 5 GHz Wi-Fi AP
