@@ -24,7 +24,7 @@
 
 #include "esp_event.h"
 #include "esp_http_client.h"
-#include "esp_log.h"
+
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_system.h"
@@ -39,6 +39,8 @@
 
 static const char *TAG = "factory_locator";
 static EventGroupHandle_t s_wifi_event_group;
+static int s_wifi_reconnect_fail_count = 0;
+static const int WIFI_MAX_RECONNECT_FAIL = 3;
 
 /* 终端运行时配置。
  * 当前先写死在代码里，后续建议迁移到 NVS 或产测参数区。 */
@@ -52,8 +54,8 @@ typedef struct {
 
 static const locator_config_t LOCATOR_CONFIG = {
     .device_id = "rack-tag-001",
-    .backhaul_ssid = "yang",
-    .backhaul_password = "yang123456",
+    .backhaul_ssid = "xx",
+    .backhaul_password = "xxx",
     .server_url = "http://192.168.1.3:8080/api/v1/locate",
     .scan_period_ms = 5000,
 };
@@ -65,22 +67,31 @@ static void wifi_event_handler(void *arg,
                                int32_t event_id,
                                void *event_data)
 {
+
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "Wi-Fi STA started, connecting to SSID=%s", LOCATOR_CONFIG.backhaul_ssid);
+        printf("[WiFi] STA started, connecting to SSID=%s\n", LOCATOR_CONFIG.backhaul_ssid);
+        s_wifi_reconnect_fail_count = 0;
         esp_wifi_connect();
         return;
     }
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        ESP_LOGW(TAG, "Disconnected from SSID=%s, retrying", LOCATOR_CONFIG.backhaul_ssid);
+        s_wifi_reconnect_fail_count++;
+        printf("[WiFi] Disconnected from SSID=%s, retrying (fail count: %d)\n", LOCATOR_CONFIG.backhaul_ssid, s_wifi_reconnect_fail_count);
         xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-        esp_wifi_connect();
+        if (s_wifi_reconnect_fail_count > WIFI_MAX_RECONNECT_FAIL) {
+            printf("[WiFi] Too many failures, disconnecting STA to allow scan.\n");
+            esp_wifi_disconnect();
+        } else {
+            esp_wifi_connect();
+        }
         return;
     }
 
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         const ip_event_got_ip_t *event = (const ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "Connected to %s, IP: " IPSTR, LOCATOR_CONFIG.backhaul_ssid, IP2STR(&event->ip_info.ip));
+        s_wifi_reconnect_fail_count = 0;
+        // ...existing code...
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
@@ -123,7 +134,7 @@ static void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "Wi-Fi station started with fixed backhaul SSID=%s", LOCATOR_CONFIG.backhaul_ssid);
+    // ...existing code...
 }
 
 /* 将扫描结果组织成上位系统需要的 JSON 字符串。
@@ -214,19 +225,18 @@ static const char* get_band_name(uint8_t channel)
  * 这里既打印结构化摘要，也保留后面的完整 JSON。 */
 static void print_scan_summary(const wifi_ap_record_t *records, uint16_t count)
 {
-    ESP_LOGI(TAG, "Scan completed, AP count=%u", count);
     for (uint16_t i = 0; i < count; ++i) {
         const char *band = get_band_name(records[i].primary);
-        ESP_LOGI(TAG,
-                 "[%u] SSID=%s BSSID=%02X:%02X:%02X:%02X:%02X:%02X RSSI=%d CH=%u (%s)",
-                 i,
-                 (const char *)records[i].ssid,
-                 records[i].bssid[0], records[i].bssid[1], records[i].bssid[2],
-                 records[i].bssid[3], records[i].bssid[4], records[i].bssid[5],
-                 records[i].rssi,
-                 records[i].primary,
-                 band);
+        printf("[SCAN] [%u] SSID=%s BSSID=%02X:%02X:%02X:%02X:%02X:%02X RSSI=%d CH=%u (%s)\n",
+               i,
+               (const char *)records[i].ssid,
+               records[i].bssid[0], records[i].bssid[1], records[i].bssid[2],
+               records[i].bssid[3], records[i].bssid[4], records[i].bssid[5],
+               records[i].rssi,
+               records[i].primary,
+               band);
     }
+    // ...existing code...
 }
 
 /* 上传扫描结果到上位系统。
@@ -243,7 +253,6 @@ static esp_err_t http_post_scan_payload(const char *payload)
 
     esp_http_client_handle_t client = esp_http_client_init(&http_cfg);
     if (client == NULL) {
-        ESP_LOGE(TAG, "Failed to create HTTP client");
         return ESP_FAIL;
     }
 
@@ -259,28 +268,11 @@ static esp_err_t http_post_scan_payload(const char *payload)
             read_len = 0;
         }
         response_buffer[read_len] = '\0';
-
-        if (status_code >= 200 && status_code < 300) {
-            ESP_LOGI(TAG,
-                     "Upload success, status=%d, content_length=%d, url=%s, body=%s",
-                     status_code,
-                     content_length,
-                     LOCATOR_CONFIG.server_url,
-                     response_buffer);
-        } else {
-            ESP_LOGE(TAG,
-                     "Server returned error, status=%d, content_length=%d, url=%s, body=%s",
-                     status_code,
-                     content_length,
-                     LOCATOR_CONFIG.server_url,
-                     response_buffer);
+        if (!(status_code >= 200 && status_code < 300)) {
             err = ESP_FAIL;
         }
     } else {
-        ESP_LOGE(TAG,
-                 "Upload failed: %s, url=%s",
-                 esp_err_to_name(err),
-                 LOCATOR_CONFIG.server_url);
+        // ...existing code...
     }
 
     esp_http_client_cleanup(client);
@@ -305,26 +297,12 @@ static void scan_and_upload_task(void *arg)
     char payload_text[JSON_PAYLOAD_BUFFER_SIZE];
 
     while (true) {
-        /* 先确认已经连上固定回传 AP，再开始扫描。 */
-        EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-                                               WIFI_CONNECTED_BIT,
-                                               pdFALSE,
-                                               pdTRUE,
-                                               pdMS_TO_TICKS(10000));
-        if ((bits & WIFI_CONNECTED_BIT) == 0) {
-            ESP_LOGW(TAG, "Backhaul SSID=%s not connected yet, postpone scan", LOCATOR_CONFIG.backhaul_ssid);
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            continue;
-        }
-
         /* 每轮扫描前先清空上一次的缓存数据。 */
         memset(records, 0, sizeof(records));
         uint16_t ap_count = MAX_SCANNED_APS;
 
-        ESP_LOGI(TAG, "Starting AP scan while connected to %s", LOCATOR_CONFIG.backhaul_ssid);
         esp_err_t err = esp_wifi_scan_start(&scan_cfg, true);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Scan start failed: %s", esp_err_to_name(err));
             vTaskDelay(pdMS_TO_TICKS(LOCATOR_CONFIG.scan_period_ms));
             continue;
         }
@@ -333,21 +311,21 @@ static void scan_and_upload_task(void *arg)
          * 如果实际 AP 数量超过 MAX_SCANNED_APS，则只保留前 N 个。 */
         err = esp_wifi_scan_get_ap_records(&ap_count, records);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Read scan results failed: %s", esp_err_to_name(err));
             vTaskDelay(pdMS_TO_TICKS(LOCATOR_CONFIG.scan_period_ms));
             continue;
         }
 
+        /* 无论是否连接AP，都打印扫描到的基站信息 */
         print_scan_summary(records, ap_count);
 
-        /* 生成 JSON，先打印到串口，再上传到上位系统。 */
-        memset(payload_text, 0, sizeof(payload_text));
-        build_payload(payload_text, sizeof(payload_text), records, ap_count);
-        if (payload_text[0] != '\0') {
-            ESP_LOGI(TAG, "Generated payload: %s", payload_text);
-            http_post_scan_payload(payload_text);
-        } else {
-            ESP_LOGW(TAG, "Payload buffer is not large enough, JSON output skipped");
+        /* 仅在已连接AP时才上传数据 */
+        EventBits_t bits = xEventGroupGetBits(s_wifi_event_group);
+        if ((bits & WIFI_CONNECTED_BIT) != 0) {
+            memset(payload_text, 0, sizeof(payload_text));
+            build_payload(payload_text, sizeof(payload_text), records, ap_count);
+            if (payload_text[0] != '\0') {
+                http_post_scan_payload(payload_text);
+            }
         }
 
         /* 控制扫描节奏，避免过于频繁地占用射频资源。 */

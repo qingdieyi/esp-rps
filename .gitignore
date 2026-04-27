@@ -1,0 +1,72 @@
+# ESP32 项目 .gitignore 示例
+
+# 编译输出
+/build/
+*.elf
+*.bin
+*.map
+*.hex
+*.log
+*.pyc
+*.o
+*.a
+*.d
+*.gcda
+*.gcno
+*.gcov
+*.out
+*.obj
+*.exe
+*.class
+*.so
+*.dll
+*.dSYM/
+
+# CMake 相关
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# ESP-IDF 相关
+sdkconfig
+sdkconfig.old
+sdkconfig.defaults
+sdkconfig.ci
+sdkconfig.json
+sdkconfig.h
+sdkconfig.cmake
+config/
+esp-idf/
+
+# VSCode 配置
+.vscode/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 日志和临时文件
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Java 构建输出
+server-java/target/
+
+# 其他
+*.orig
+*.rej
+*.DS_Store
+Thumbs.db
+
+# 不要忽略源码和文档
+!main/
+!docs/
+!hardware/
+!server-java/src/
+!README.md
+!system_design_zh.md
